@@ -9,7 +9,7 @@ const userController = require('../controllers/userController');
 routes.get('/',userController.index);
 routes.post('/register',fileupload,userController.insertdata);
 routes.delete('/deleteData',userController.deleteData);
-routes.post('/updateData',userController.updateData);
+routes.put('/updateData',userController.updateData);
 
 
 module.exports = routes;

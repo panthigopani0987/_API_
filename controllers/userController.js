@@ -19,7 +19,7 @@ const insertdata = async (req, res) => {
                 name: name,
                 email: email,
                 phone: phone,
-                image: image || null,
+                image: image,
                 status: status,
                 created_date: created_date,
                 updated_date: updated_date,
@@ -57,28 +57,24 @@ const index = async (req, res) => {
 const deleteData = async (req, res) => {
     try {
         let id = req.query.id;
-        let foundData = await crudtbl.findById(id);
-        if (!foundData) {
-            console.log("Data not found");
-            return res.status(404).json({ error: "Data not found" });
-        }
-        try {
-            fs.unlinkSync(foundData.image);
-            console.log("Image successfully removed");
-        } catch (err) {
-            console.error(err);
-            return res.status(500).json({ error: "Failed to delete image" });
-        }
-        // Delete data from database
+        let deleteImg = await crudtbl.findById(id);
+		if (deleteImg) {
+			fs.unlinkSync(deleteImg.image)
+			console.log("Image successfully remove");
+		} else {
+			console.log("Image can't remove");
+			return false
+		}
         let userData = await crudtbl.findByIdAndDelete(id);
         if (userData) {
-            return res.json({ status: 200, message: 'User Deleted' });
-        } else {
-            return res.status(500).json({ error: "Failed to delete data" });
+            return res.json({ status: 1, messege: 'User Delete' });
+        }
+        else {
+            return res.status(500).json({ error: "Failed to Delete data" });
         }
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal server error" });
+        console.log(err);
+        return false;
     }
 }
 
@@ -87,16 +83,16 @@ const deleteData = async (req, res) => {
 
 const updateData = async (req, res) => {
     try {
-        const { name, email, phone, status, created_date, updated_date } = req.body;
+        const { name, email, phone,image, status, created_date, updated_date } = req.body;
         const user = await crudtbl.findByIdAndUpdate(req.query.id, {
             name: name,
             email: email,
             phone: phone,
+            image: image,
             status: status,
             created_date: created_date,
             updated_date: updated_date,
         });
-        console.log(user);
         if (user) {
             return res.json({ status: 200, message: 'User Updated' });
         } else {
